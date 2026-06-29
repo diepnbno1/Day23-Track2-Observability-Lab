@@ -2,7 +2,7 @@
 
 **Student:** NGUYỄN BÁCH ĐIỆP - 2A202600535
 **Submission date:** 2026-06-29
-**Lab repo URL:** TODO - replace with your public GitHub fork URL
+**Lab repo URL:** https://github.com/diepnbno1/Day23-Track2-Observability-Lab
 
 ---
 
