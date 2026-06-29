@@ -4,6 +4,7 @@
 
 services:
   app:
+    image: day23-track2-observability-lab-app:latest
     build:
       context: ./01-instrument-fastapi/app
       dockerfile: Dockerfile
@@ -59,6 +60,12 @@ services:
       - ./02-prometheus-grafana/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     environment:
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/REPLACE/ME}
+    entrypoint: ["/bin/sh"]
+    command:
+      - -c
+      - |
+        sed "s|__SLACK_WEBHOOK_URL__|$${SLACK_WEBHOOK_URL}|g" /etc/alertmanager/alertmanager.yml > /tmp/alertmanager.yml
+        exec /bin/alertmanager --config.file=/tmp/alertmanager.yml --storage.path=/alertmanager
     networks: [obs]
 
   grafana:
@@ -75,6 +82,7 @@ services:
     volumes:
       - ./02-prometheus-grafana/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./02-prometheus-grafana/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./05-integration:/var/lib/grafana/integration-dashboards:ro
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
@@ -114,6 +122,28 @@ services:
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     depends_on:
       - jaeger
+    networks: [obs]
+
+  day19-stub:
+    image: day23-track2-observability-lab-app:latest
+    container_name: day23-day19-stub
+    command: ["python", "/monitors/monitor-day19-vector-store.py"]
+    volumes:
+      - ./05-integration:/monitors:ro
+    depends_on:
+      app:
+        condition: service_started
+    networks: [obs]
+
+  day20-stub:
+    image: day23-track2-observability-lab-app:latest
+    container_name: day23-day20-stub
+    command: ["python", "/monitors/monitor-day20-llama-cpp.py"]
+    volumes:
+      - ./05-integration:/monitors:ro
+    depends_on:
+      app:
+        condition: service_started
     networks: [obs]
 
 volumes:

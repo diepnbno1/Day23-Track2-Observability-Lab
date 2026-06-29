@@ -85,7 +85,7 @@ def main() -> int:
     drift_ok = False
     if drift_summary.exists():
         try:
-            data = json.loads(drift_summary.read_text())
+            data = json.loads(drift_summary.read_text(encoding="utf-8"))
             drift_ok = any(m.get("drift") == "yes" for m in data.values())
         except json.JSONDecodeError:
             pass
@@ -95,7 +95,7 @@ def main() -> int:
     reflection = SUBMISSION / "REFLECTION.md"
     results.append(check(
         "submission: REFLECTION.md exists and is non-trivial",
-        reflection.exists() and len(reflection.read_text()) > 500,
+        reflection.exists() and len(reflection.read_text(encoding="utf-8")) > 500,
     ))
 
     print()
